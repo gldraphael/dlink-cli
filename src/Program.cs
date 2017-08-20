@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using C = FluentColorConsole.ColorConsole;
 
@@ -6,6 +7,9 @@ namespace Dlink.Cli
 {
     class Program
     {
+
+        private const string ip = "192.168.0.1";
+        
         static async Task Main(string[] args)
         {
             C.WithBlueText.WriteLine("Unofficial dlink CLI v0.1");
@@ -29,14 +33,24 @@ namespace Dlink.Cli
 
             if(option.Is("release"))
             {
-                Console.WriteLine($"Performing a DHCP release");
-                return await Task.FromResult(true);
+                using(HttpClient http = new HttpClient())
+                {
+                    Console.WriteLine($"Performing a DHCP release");
+                    var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=false");
+                    if(!response.IsSuccessStatusCode) return false;
+                    return (await response.Content.ReadAsStringAsync()).Contains("Done");
+                }
             }
 
             else if(option.Is("renew"))
             {
-                Console.WriteLine($"Performing a DHCP renew");
-                return await Task.FromResult(true);
+                using(HttpClient http = new HttpClient())
+                {
+                    Console.WriteLine($"Performing a DHCP renew");
+                    var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=true");
+                    if(!response.IsSuccessStatusCode) return false;
+                    return (await response.Content.ReadAsStringAsync()).Contains("Done");
+                }
             }
             
             return false;
