@@ -12,11 +12,20 @@ namespace Dlink.Cli
         
         static async Task Main(string[] args)
         {
-            C.WithBlueText.WriteLine("Unofficial dlink CLI v0.1");
-            var result = await parseArgumentsAndGetTask(args);
-            if(result)
+            try
             {
-                Console.WriteLine("Done.");
+                C.WithBlueText.WriteLine("Unofficial dlink CLI v0.1");
+                var result = await parseArgumentsAndGetTask(args);
+                if(result)
+                {
+                    Console.WriteLine("Done.");
+                }
+            }
+            catch(Exception e)
+            {
+                C.WithDarkRedText.WriteLine("Something's gone wrong!");
+                C.WithDarkGrayText.WriteLine(e.Message);
+                C.WithDarkGrayText.WriteLine(e.StackTrace);
             }
         }
 
@@ -52,6 +61,25 @@ namespace Dlink.Cli
                     return (await response.Content.ReadAsStringAsync()).Contains("Done");
                 }
             }
+
+            else if(option.Is("status"))
+            {
+                using(HttpClient http = new HttpClient())
+                {
+                    C.WithDarkGrayText.WriteLine($"Please wait...");
+                    var response = await http.GetAsync($"http://{ip}/Status/wan_connection_status.asp");
+                    if(!response.IsSuccessStatusCode) 
+                    {
+                        C.WithDarkRedText.WriteLine("Error while fetching data");
+                    }
+                    else 
+                    {
+                        // TODO: Print the status text here
+                    }
+                    
+                    return false;
+                }
+            }
             
             return false;
         }
@@ -62,8 +90,9 @@ namespace Dlink.Cli
             Console.WriteLine("Usage:");
             Console.WriteLine(" dlink <release|renew>");
             Console.WriteLine();
-            Console.WriteLine(" --release  - Performs a DHCP release");
-            Console.WriteLine(" --renew    - Performs a DHCP renew");
+            Console.WriteLine(" --status   - Prints connection status information.");
+            Console.WriteLine(" --release  - Performs a DHCP release.");
+            Console.WriteLine(" --renew    - Performs a DHCP renew.");
         }
     }
 }

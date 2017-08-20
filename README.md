@@ -2,7 +2,7 @@
 
 Use the tool as:
 ```bash
-$ dlink <release|renew>
+$ dlink <status|release|renew>
 ```
 
 ## Installation (for *nix systems)
@@ -13,7 +13,7 @@ $ dlink <release|renew>
 
 ```bash
 # Clone the repository
-$ git clone git@bitbucket.org:footdream/fd-notification-cli.git --depth 1
+$ git clone git@github.com:gldraphael/dlink-cli.git --depth 1
 $ cd fd-notification-cli
 # Run the install script as root
 $ sudo ./install
