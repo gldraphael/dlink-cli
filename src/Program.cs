@@ -6,20 +6,13 @@ using C = FluentColorConsole.ColorConsole;
 namespace Dlink.Cli
 {
     class Program
-    {
-
-        private const string ip = "192.168.0.1";
-        
+    {   
         static async Task Main(string[] args)
         {
             try
             {
                 C.WithBlueText.WriteLine("Unofficial dlink CLI v0.1");
-                var result = await parseArgumentsAndGetTask(args);
-                if(result)
-                {
-                    Console.WriteLine("Done.");
-                }
+                await parseArgumentsAndRun(args);
             }
             catch(Exception e)
             {
@@ -29,7 +22,7 @@ namespace Dlink.Cli
             }
         }
 
-        static async Task<bool> parseArgumentsAndGetTask(string[] args)
+        static async Task<bool> parseArgumentsAndRun(string[] args)
         {
             if(args == null || args.Length == 0 || args[0].Is("help"))
             {
@@ -39,48 +32,56 @@ namespace Dlink.Cli
 
             var option = args[0];
             var arg = args.Length > 1 ? args[1] : null;
+            var dlink = new DlinkService();
 
             if(option.Is("release"))
             {
-                using(HttpClient http = new HttpClient())
-                {
-                    Console.WriteLine($"Performing a DHCP release");
-                    var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=false");
-                    if(!response.IsSuccessStatusCode) return false;
-                    return (await response.Content.ReadAsStringAsync()).Contains("Done");
-                }
+                Console.WriteLine($"Performing a DHCP release");
+                return await dlink.DhcpReleaseAsync();
             }
 
             else if(option.Is("renew"))
             {
-                using(HttpClient http = new HttpClient())
+                Console.WriteLine($"Performing a DHCP renew");
+                C.WithDarkGrayText.WriteLine($"Please wait...");
+                return await dlink.DhcpRenewAsync();
+            }
+
+            else if(option.Is("refresh"))
+            {
+                Console.WriteLine($"Releasing the DHCP lease");
+                if(!await dlink.DhcpReleaseAsync())
                 {
-                    Console.WriteLine($"Performing a DHCP renew");
-                    C.WithDarkGrayText.WriteLine($"Please wait...");
-                    var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=true");
-                    if(!response.IsSuccessStatusCode) return false;
-                    return (await response.Content.ReadAsStringAsync()).Contains("Done");
+                    C.WithDarkRedText.WriteLine("DHCP release failed.");
+                    return false;
                 }
+
+                Console.WriteLine($"Renewing the DHCP connection");
+                C.WithDarkGrayText.WriteLine($"Please wait...");
+                if(!await dlink.DhcpRenewAsync())
+                {
+                    C.WithDarkRedText.WriteLine("DHCP renew failed.");
+                    return false;
+                }
+
+                return true;
             }
 
             else if(option.Is("status"))
             {
-                using(HttpClient http = new HttpClient())
+                var status = await dlink.GetStatusAsync();
+                if(status == null) 
                 {
-                    var response = await http.GetAsync($"http://{ip}/Status/wan_connection_status.asp");
-                    if(!response.IsSuccessStatusCode) 
-                    {
-                        C.WithDarkRedText.WriteLine("Error while fetching data");
-                    }
-                    else 
-                    {
-                        C.WithDarkGrayText.WriteLine(await response.Content.ReadAsStringAsync());
-                    }
-                    
+                    C.WithDarkRedText.WriteLine("Error while fetching status");
                     return false;
                 }
+
+                C.WithDarkGrayText.WriteLine(status);
+                return true;
             }
             
+            C.WithDarkRedText.WriteLine("That's an invalid option.");
+            printHelp();
             return false;
         }
 
@@ -88,11 +89,12 @@ namespace Dlink.Cli
         {
             Console.WriteLine();
             Console.WriteLine("Usage:");
-            Console.WriteLine(" dlink <release|renew>");
+            Console.WriteLine(" dlink <status|release|renew|refresh>");
             Console.WriteLine();
             Console.WriteLine(" --status   - Prints connection status information.");
-            Console.WriteLine(" --release  - Performs a DHCP release.");
-            Console.WriteLine(" --renew    - Performs a DHCP renew.");
+            Console.WriteLine(" --release  - Releases the DHCP lease.");
+            Console.WriteLine(" --renew    - Renews the DHCP connection.");
+            Console.WriteLine(" --refresh  - Performs a DHCP release and renew");
         }
     }
 }
