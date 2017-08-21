@@ -19,9 +19,17 @@ namespace Dlink.Cli
 
         public async Task<bool> DhcpReleaseAsync()
         {
-            var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=false");
-            if(!response.IsSuccessStatusCode) return false;
-            return (await response.Content.ReadAsStringAsync()).Contains("Done");
+            try{
+                var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=false");
+                if(!response.IsSuccessStatusCode) return false;
+                return (await response.Content.ReadAsStringAsync()).Contains("Done");
+            }
+            catch(Exception) { // TODO: use the correct class here
+                // Can't connect to server?
+                // The internet really isn't working
+                // Call the ISP!
+                return false;
+            }
         }
 
         public async Task<bool> DhcpRenewAsync()
