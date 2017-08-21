@@ -46,6 +46,11 @@ namespace Dlink.Cli
             return status;
         }
 
+        public async Task<string> GetWanIpAddressAsync()
+        {
+            return (await GetStatusAsync())?.WanIpAddress;
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 

@@ -37,14 +37,23 @@ namespace Dlink.Cli
             if(option.Is("release"))
             {
                 Console.WriteLine($"Performing a DHCP release");
-                return await dlink.DhcpReleaseAsync();
+                if(!await dlink.DhcpReleaseAsync())
+                {
+                    C.WithDarkRedText.WriteLine("DHCP release failed.");
+                    return false;
+                }
             }
 
             else if(option.Is("renew"))
             {
                 Console.WriteLine($"Performing a DHCP renew");
                 C.WithDarkGrayText.WriteLine($"Please wait...");
-                return await dlink.DhcpRenewAsync();
+                if(!await dlink.DhcpRenewAsync())
+                {
+                    C.WithDarkRedText.WriteLine("DHCP renew failed.");
+                    return false;
+                }
+                Console.WriteLine($"Your WAN IP is: {await dlink.GetWanIpAddressAsync() ?? "ERROR"}");
             }
 
             else if(option.Is("refresh"))
@@ -63,6 +72,8 @@ namespace Dlink.Cli
                     C.WithDarkRedText.WriteLine("DHCP renew failed.");
                     return false;
                 }
+
+                Console.WriteLine($"Your WAN IP is: {await dlink.GetWanIpAddressAsync() ?? "ERROR"}");
 
                 return true;
             }
@@ -87,14 +98,14 @@ namespace Dlink.Cli
 
             else if(option.Is("ip"))
             {
-                var status = await dlink.GetStatusAsync();
-                if(status == null) 
+                var ip = await dlink.GetWanIpAddressAsync();
+                if(ip == null) 
                 {
                     C.WithDarkRedText.WriteLine("Error while fetching status");
                     return false;
                 }
 
-                Console.WriteLine($"WAN IP: {status.WanIpAddress}");
+                Console.WriteLine($"WAN IP: {ip}");
                 return true;
             }
             
