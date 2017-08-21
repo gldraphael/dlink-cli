@@ -7,7 +7,7 @@
         {
             "taskName": "build",
             "args": [
-                "${workspaceRoot}/fd-notif-test.csproj"
+                "${workspaceRoot}/src/cli.csproj"
             ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
