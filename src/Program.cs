@@ -56,6 +56,7 @@ namespace Dlink.Cli
                 using(HttpClient http = new HttpClient())
                 {
                     Console.WriteLine($"Performing a DHCP renew");
+                    C.WithDarkGrayText.WriteLine($"Please wait...");
                     var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=true");
                     if(!response.IsSuccessStatusCode) return false;
                     return (await response.Content.ReadAsStringAsync()).Contains("Done");
@@ -66,7 +67,6 @@ namespace Dlink.Cli
             {
                 using(HttpClient http = new HttpClient())
                 {
-                    C.WithDarkGrayText.WriteLine($"Please wait...");
                     var response = await http.GetAsync($"http://{ip}/Status/wan_connection_status.asp");
                     if(!response.IsSuccessStatusCode) 
                     {
@@ -74,7 +74,7 @@ namespace Dlink.Cli
                     }
                     else 
                     {
-                        // TODO: Print the status text here
+                        C.WithDarkGrayText.WriteLine(await response.Content.ReadAsStringAsync());
                     }
                     
                     return false;
