@@ -76,7 +76,25 @@ namespace Dlink.Cli
                     return false;
                 }
 
-                Console.WriteLine(status.WanIpAddress);
+                Console.WriteLine($"WAN IP Address:   {status.WanIpAddress}");
+                Console.WriteLine($"WAN Subnet:       {status.WanSubnet}");
+                Console.WriteLine($"WAN Gateway:      {status.WanGateway}");
+                Console.WriteLine($"Primary DNS:      {status.WanPrimaryDns}");
+                Console.WriteLine($"Secondary DNS:    {status.WanSecondaryDns}");
+                Console.WriteLine($"Interface Uptime: {status.WanInterfaceUptime}");
+                return true;
+            }
+
+            else if(option.Is("ip"))
+            {
+                var status = await dlink.GetStatusAsync();
+                if(status == null) 
+                {
+                    C.WithDarkRedText.WriteLine("Error while fetching status");
+                    return false;
+                }
+
+                Console.WriteLine($"WAN IP: {status.WanIpAddress}");
                 return true;
             }
             
@@ -89,12 +107,13 @@ namespace Dlink.Cli
         {
             Console.WriteLine();
             Console.WriteLine("Usage:");
-            Console.WriteLine(" dlink <status|release|renew|refresh>");
+            Console.WriteLine(" dlink <status|release|renew|refresh|ip>");
             Console.WriteLine();
             Console.WriteLine(" --status   - Prints connection status information.");
             Console.WriteLine(" --release  - Releases the DHCP lease.");
             Console.WriteLine(" --renew    - Renews the DHCP connection.");
             Console.WriteLine(" --refresh  - Performs a DHCP release and renew");
+            Console.WriteLine(" --ip       - Prints the WAN IP Address");
         }
     }
 }
