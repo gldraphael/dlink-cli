@@ -76,7 +76,7 @@ namespace Dlink.Cli
                     return false;
                 }
 
-                C.WithDarkGrayText.WriteLine(status);
+                Console.WriteLine(status.WanIpAddress);
                 return true;
             }
             

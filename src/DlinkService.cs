@@ -1,6 +1,9 @@
 using System;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
+using Dlink.Cli.Models;
 
 namespace Dlink.Cli
 {
@@ -28,14 +31,19 @@ namespace Dlink.Cli
             return (await response.Content.ReadAsStringAsync()).Contains("Done");
         }
 
-        public async Task<string> GetStatusAsync()
+        public async Task<Status> GetStatusAsync()
         {
             var response = await http.GetAsync($"http://{ip}/Status/wan_connection_status.asp");
             if(!response.IsSuccessStatusCode)
             {
                 return null;
             }
-            return await response.Content.ReadAsStringAsync();
+
+            DataContractSerializer serializer = new DataContractSerializer(typeof(Status));
+            var reader = XmlDictionaryReader.CreateTextReader(await response.Content.ReadAsStreamAsync(), new XmlDictionaryReaderQuotas());
+            Status status = serializer.ReadObject(reader, true) as Status;
+            reader.Close();
+            return status;
         }
 
         #region IDisposable Support
