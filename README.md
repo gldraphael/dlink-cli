@@ -19,8 +19,6 @@ $ cd fd-notification-cli
 $ sudo ./install
 ```
 
-![Installation](dist/installation.png)
-
 You may uninstall the cli by running `sudo ./uninstall` instead.
 
 ## Running without installation
