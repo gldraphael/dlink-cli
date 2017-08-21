@@ -2,58 +2,61 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-public class DlinkService : IDisposable
+namespace Dlink.Cli
 {
-    private HttpClient http;
-    private const string ip = "192.168.0.1";
-
-    public DlinkService()
+    public class DlinkService : IDisposable
     {
-        http = new HttpClient();
-    }
+        private HttpClient http;
+        private const string ip = "192.168.0.1";
 
-    public async Task<bool> DhcpReleaseAsync()
-    {
-        var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=false");
-        if(!response.IsSuccessStatusCode) return false;
-        return (await response.Content.ReadAsStringAsync()).Contains("Done");
-    }
-
-    public async Task<bool> DhcpRenewAsync()
-    {
-        var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=true");
-        if(!response.IsSuccessStatusCode) return false;
-        return (await response.Content.ReadAsStringAsync()).Contains("Done");
-    }
-
-    public async Task<string> GetStatusAsync()
-    {
-        var response = await http.GetAsync($"http://{ip}/Status/wan_connection_status.asp");
-        if(!response.IsSuccessStatusCode)
+        public DlinkService()
         {
-            return null;
+            http = new HttpClient();
         }
-        return await response.Content.ReadAsStringAsync();
-    }
 
-    #region IDisposable Support
-    private bool disposedValue = false; // To detect redundant calls
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
+        public async Task<bool> DhcpReleaseAsync()
         {
-            if (disposing)
+            var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=false");
+            if(!response.IsSuccessStatusCode) return false;
+            return (await response.Content.ReadAsStringAsync()).Contains("Done");
+        }
+
+        public async Task<bool> DhcpRenewAsync()
+        {
+            var response = await http.GetAsync($"http://{ip}/Status/wan_button_action.asp?connect=true");
+            if(!response.IsSuccessStatusCode) return false;
+            return (await response.Content.ReadAsStringAsync()).Contains("Done");
+        }
+
+        public async Task<string> GetStatusAsync()
+        {
+            var response = await http.GetAsync($"http://{ip}/Status/wan_connection_status.asp");
+            if(!response.IsSuccessStatusCode)
             {
-                http.Dispose();
-                http = null;
+                return null;
             }
-            disposedValue = true;
+            return await response.Content.ReadAsStringAsync();
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    http.Dispose();
+                    http = null;
+                }
+                disposedValue = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
-    public void Dispose()
-    {
-        Dispose(true);
-    }
-    #endregion
 }
