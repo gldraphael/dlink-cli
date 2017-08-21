@@ -2,7 +2,7 @@
 
 Use the tool as:
 ```bash
-$ dlink <status|release|renew>
+$ dlink <status|release|renew|refresh|ip>
 ```
 
 ## Installation (for *nix systems)
