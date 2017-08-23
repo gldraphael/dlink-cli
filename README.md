@@ -14,7 +14,7 @@ $ dlink <status|release|renew|refresh|ip>
 ```bash
 # Clone the repository
 $ git clone git@github.com:gldraphael/dlink-cli.git --depth 1
-$ cd fd-notification-cli
+$ cd dlink-cli
 # Run the install script as root
 $ sudo ./install
 ```
