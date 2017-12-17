@@ -13,13 +13,13 @@ $ dlink <status|release|renew|refresh|ip>
 
 ```bash
 # Clone the repository
-$ git clone git@github.com:gldraphael/dlink-cli.git --depth 1
-$ cd dlink-cli
+git clone https://github.com/gldraphael/dlink-cli.git --depth 1
+cd dlink-cli
 # Run the install script as root
-$ sudo ./install
+sudo ./install.sh
 ```
 
-You may uninstall the cli by running `sudo ./uninstall` instead.
+You may uninstall the cli by running `sudo ./uninstall.sh` instead.
 
 ## Running without installation
 
